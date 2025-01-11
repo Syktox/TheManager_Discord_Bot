@@ -17,7 +17,6 @@ bot = commands.Bot(command_prefix='$', description=description, intents=intents)
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
 
-
 @bot.command('changeNickname')
 async def changeNickame(ctx, member: discord.Member, nick: str):
     try:
@@ -40,6 +39,10 @@ async def removeAllNicknames(ctx):
             except discord.HTTPException as e:
                 print(f"Error : {e}")
              
+@bot.command('removeAllNicknamesExceptRole')
+async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
+    await ctx.send(f"Role {role.name} avalable")
+    
 
 TOKEN = os.getenv('TOKEN')
 bot.run(TOKEN)
