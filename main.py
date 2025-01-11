@@ -6,9 +6,11 @@ import os
 description = '''This Shit should change the nicknames of people on the server with an command'''
 
 load_dotenv()
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 intents.messages = True
+member_list = []
+
 bot = commands.Bot(command_prefix='$', description=description, intents=intents)
 
 @bot.event
@@ -28,11 +30,11 @@ async def change(ctx, member: discord.Member, new_nickname: str):
         await ctx.send(f"An error occurred: {e}")
 
 @bot.command('changeAll')
-async def changeAll(ctx, occurrences , new_nickname: str):
-
-
-    pass
-
+async def changeAll(ctx, occurrences: str , new_nickname: str):
+    for server in bot.guilds:
+        for member in server.members:
+            member_list.append(member)
+            await ctx.send(f"{member.id} : {member} : {member.nick} : {member.name}")
 
 TOKEN = os.getenv('TOKEN')
 bot.run(TOKEN)
