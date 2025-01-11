@@ -3,20 +3,36 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 
-description = '''This Shit should Change the Nicknames of people on the server with an ez command'''
+description = '''This Shit should change the nicknames of people on the server with an command'''
 
 load_dotenv()
 intents = discord.Intents.default()
-client = commands.Bot(command_prefix='$', description=description, intents=intents)
+intents.members = True
+intents.messages = True
+bot = commands.Bot(command_prefix='$', description=description, intents=intents)
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'{client.user} has connected to Discord!')
+    print(f'{bot.user} has connected to Discord!')
 
-@client.command(name='change')
-async def change(ctx, string: str):
-    """Change Nicknames"""
-    await print('test')
+@bot.command(name='change')
+@commands.has_permissions(manage_nicknames=True)
+async def change(ctx, member: discord.Member, new_nickname: str):
+    try:
+        old_nickname = member.nick or member.name  # Fallback to username if no nickname is set
+        await member.edit(nick=new_nickname)
+        await ctx.send(f"Changed nickname for {old_nickname} to {new_nickname}.")
+    except discord.Forbidden:
+        await ctx.send("I do not have permission to change this member's nickname.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
+
+@bot.command('changeAll')
+async def changeAll(ctx, occurrences , new_nickname: str):
+
+
+    pass
+
 
 TOKEN = os.getenv('TOKEN')
-client.run(TOKEN)
+bot.run(TOKEN)
