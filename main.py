@@ -34,7 +34,11 @@ async def changeAll(ctx, occurrences: str , new_nickname: str):
     for server in bot.guilds:
         for member in server.members:
             member_list.append(member)
+            if member.nick == "Maike4Seven ":
+                member.nick = None
+                await ctx.send(f"changed {member.name}s nickname back")
             await ctx.send(f"{member.id} : {member} : {member.nick} : {member.name}")
+        
 
 TOKEN = os.getenv('TOKEN')
 bot.run(TOKEN)
