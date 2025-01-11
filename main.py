@@ -18,8 +18,8 @@ async def on_ready():
     print(f'{bot.user} has connected to Discord!')
 
 
-@bot.command('changeNick')
-async def changeNick(ctx, member: discord.Member, nick: str):
+@bot.command('changeNickname')
+async def changeNickame(ctx, member: discord.Member, nick: str):
     try:
         await member.edit(nick=nick)
         await ctx.send(f"Changed nickname of {member.mention}")
