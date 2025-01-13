@@ -13,13 +13,13 @@ async def on_message(message):
             return
      await bot.process_commands(message)
 
-async def on_member_join(ctx, member):
+async def on_member_join(member):
         if show_join_message:
             channel = member.guild.system_channel
             if channel:
                 await channel.send(f"Hello {member.name}!")
 
-async def on_member_remove(ctx, member):
+async def on_member_remove(member):
     if show_leave_message:
         channel = member.guild.system_channel
         if channel:
