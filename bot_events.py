@@ -10,6 +10,14 @@ show_leave_message = True
 async def on_ready():
     print(f'Logged in as {bot.user.name} at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 
+async def on_command_error(ctx, error):
+        if isinstance(error, discord.ext.commands.CommandNotFound):
+            await ctx.send(f"Command not found!")
+        elif isinstance(error, discord.ext.commands.errors.BadBoolArgument):
+            await ctx.send(f"Wrong Input! You should use True or False")
+        else:
+            raise error
+
 async def on_message(message):
      if message.author == bot.user:
             return
