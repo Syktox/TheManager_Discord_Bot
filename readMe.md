@@ -7,6 +7,7 @@
 - on_member_join : Sends a message when a member leaves the server (when it is activated)
 
 
+
 ### Commands
 Every command needs to be used with a $
 
