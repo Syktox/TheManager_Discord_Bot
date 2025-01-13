@@ -15,6 +15,7 @@ Every command needs to be used with a $
 - switch_leave_message : Switches if the leave message will be sent
 
 
+
 - changeNickname @member (needs to be mentioned) new_nickname : Changes the nickname of the mentioned member to the new_nickname
 - removeAllNicknames : Removes every nickname on the server
 - removeAllNicknamesExceptRole : Removes every nickname except a specific role nickname
