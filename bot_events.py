@@ -26,7 +26,6 @@ async def on_member_join(member):
         await member.add_roles(role)
         print(f"Assigned Role: Community to {member.name}")
         
-
 async def on_member_remove(member):
     if show_leave_message:
         channel = bot.get_channel(1328375654106009741)
