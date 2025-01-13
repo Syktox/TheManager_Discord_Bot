@@ -18,6 +18,14 @@ async def switch_leave_message(ctx, changed: bool):
     bot_events.show_leave_message = changed
     await ctx.send(f"Leave message has been set to: {bot_events.show_leave_message}")
 
+@commands.command('check_join_message_status')
+async def check_join_message_status(ctx):
+    await ctx.send(f"Join messages are set to: {bot_events.show_join_message}")
+
+@commands.command('check_leave_message_status')
+async def check_leave_message_status(ctx):
+    await ctx.send(f"Leave message are set to: {bot_events.show_leave_message}")
+
 # Joke command
 
 @commands.command('joke')
