@@ -1,6 +1,8 @@
 import discord
 import datetime
 
+import test
+
 bot = None
 join_role_id = 415936771742892053
 main_channel_id = 1328375654106009741
@@ -27,17 +29,12 @@ async def on_command_error(ctx, error):
 async def on_message(message):
     if message.author == bot.user:
         return
-    try:
-        if message.content.startswith('$'):
-            if any(role.id == manage_bot_roles for role in message.author.roles):
-                print(f"You dont have the role")
-                return
-        print(f"{message.author}")
-    except TypeError:
-        print("Fuck you")
+    if message.content.startswith('$') and isinstance(message.author, discord.Member):
+        role_ids = [role.id for role in message.author.roles]
+        if not any(test in role_ids for test in manage_bot_roles):
+            return
     await bot.process_commands(message)
    
-    
 async def on_member_join(member):  
     if show_join_message:
         channel = bot.get_channel(1328375654106009741)
