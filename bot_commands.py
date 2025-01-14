@@ -1,3 +1,4 @@
+import string
 import discord
 from discord.ext import commands
 import requests
@@ -65,3 +66,14 @@ async def removeAllNicknames(ctx):
 @commands.command('removeAllNicknamesExceptRole')
 async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
     await ctx.send(f"Role {role.name} avalable")
+
+@commands.command('changeAllNicknamesInRole')
+async def changeAllNicknamesInRole(ctx, role: discord.guild.Role, str):
+    for member in role.members:
+        try:
+            await member.edit(nick=str)
+            await ctx.send(f"Changed all members with {role.name} to {str}")
+        except discord.Forbidden:
+            print(f"Can't change the nickname of {member.name} : {member.nick}")
+        except discord.HTTPException as e:
+            print(f"Error : {e}")

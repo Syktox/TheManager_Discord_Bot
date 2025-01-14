@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-import datetime
 import bot_commands
 import bot_events
 
