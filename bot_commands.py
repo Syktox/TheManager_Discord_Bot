@@ -51,21 +51,31 @@ async def changeNickname(ctx, member: discord.Member, nick: str):
 
 @commands.command('removeAllNicknames', pass_content=True)
 async def removeAllNicknames(ctx):
-    for server in bot.guilds:
-        for member in server.members:
-            await ctx.send(f"Current user: {member.name} : {member.nick} : {member.id}")
-            try:
-                if member.nick:
-                    await member.edit(nick=None)
-                    await ctx.send(f"Removed nickname from: {member.name}")
-            except discord.Forbidden:
-                print(f"Can't change the nickname of {member.name} : {member.nick}")
-            except discord.HTTPException as e:
-                print(f"Error : {e}")
+    for member in ctx.guild.members:
+        await ctx.send(f"Current user: {member.name} : {member.nick} : {member.id}")
+        try:
+            if member.nick:
+                await member.edit(nick=None)
+                await ctx.send(f"Removed nickname from: {member.name}")
+        except discord.Forbidden:
+            print(f"Can't change the nickname of {member.name} : {member.nick}")
+        except discord.HTTPException as e:
+            print(f"Error : {e}")
 
 @commands.command('removeAllNicknamesExceptRole')
 async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
-    await ctx.send(f"Role {role.name} avalable")
+    for server_member in ctx.guild.members:
+        if server_member.nick:
+            try:
+                if not any(member == server_member for member in role.members):
+                    await server_member.edit(nick=None)
+                    await ctx.send(f"Removed nickname from: {server_member.name}")
+            except discord.Forbidden:
+                print(f"Can't change the nickname of {server_member.name} : {server_member.nick}")
+            except discord.HTTPException as e:
+                print(f"Error : {e}")
+
+
 
 @commands.command('changeAllNicknamesInRole')
 async def changeAllNicknamesInRole(ctx, role: discord.guild.Role, str):
