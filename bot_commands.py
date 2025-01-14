@@ -75,8 +75,6 @@ async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
             except discord.HTTPException as e:
                 print(f"Error : {e}")
 
-
-
 @commands.command('changeAllNicknamesInRole')
 async def changeAllNicknamesInRole(ctx, role: discord.guild.Role, str):
     for member in role.members:
