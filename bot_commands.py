@@ -1,3 +1,4 @@
+from cmath import e
 import string
 import discord
 from discord.ext import commands
@@ -85,3 +86,18 @@ async def changeAllNicknamesInRole(ctx, role: discord.guild.Role, str):
             print(f"Can't change the nickname of {member.name} : {member.nick}")
         except discord.HTTPException as e:
             print(f"Error : {e}")
+
+
+@commands.command('alone')
+async def alone(ctx, member: discord.Member):
+    if ctx.author.voice and ctx.author.voice.channel:
+        voice_channel = ctx.author.voice.channel
+        members = ", ".join([member.name for member in voice_channel.members])
+        await ctx.send(f"Users in {voice_channel.name}: {members}")
+    else:
+        await ctx.send("You are not connected to a voice channel!")
+
+
+@commands.command('dmMe')   # only test reasons
+async def dmMe(ctx):
+    await ctx.author.send('I send you a message')
