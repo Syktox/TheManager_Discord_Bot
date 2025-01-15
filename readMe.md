@@ -22,6 +22,10 @@ Every command needs to be used with a $
 - removeAllNicknames : Removes every nickname on the server
 - removeAllNicknamesExceptRole @role (needs to be mentioned) : Removes every nickname except a specific role nickname
 - changeAllNicknamesInRole @role (needs to be mentioned) text : Changes every user's nick with the role into text parameter 
+- alone @member (needs to be mentioned) : not finished
+- dmMe message : The bot sends you a private message with the "message-text"
+- dmMember message @member(s) (needs to be mentioned) : Sends all mentioned members a private message with the content "message-text" 
+- dmMemberSpam message @member(s) (needs to be mentioned) : Spams every mentioned member with the "message-text"
 
 
 ### PS: 
