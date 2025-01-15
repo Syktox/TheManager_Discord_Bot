@@ -1,5 +1,3 @@
-from cmath import e
-import string
 import discord
 from discord.ext import commands
 import requests
@@ -93,11 +91,44 @@ async def alone(ctx, member: discord.Member):
     if ctx.author.voice and ctx.author.voice.channel:
         voice_channel = ctx.author.voice.channel
         members = ", ".join([member.name for member in voice_channel.members])
+        if not any(t in member for t in members):
+            await ctx.send(f"The other person is not in a voice channel with you")
         await ctx.send(f"Users in {voice_channel.name}: {members}")
     else:
         await ctx.send("You are not connected to a voice channel!")
 
-
 @commands.command('dmMe')   # only test reasons
 async def dmMe(ctx):
     await ctx.author.send('I send you a message')
+
+@commands.command('dmMember')
+async def dmMember(ctx, message: str, *members: discord.Member):
+    try:
+        if not members:
+            ctx.send("You have to mention atleast one member!")
+            return
+        for member in members:
+            await member.send(message)
+    except discord.Forbidden:
+        await ctx.send(f"Ich kann {member.name} keine Nachricht senden. Der Benutzer hat DMs deaktiviert.")
+    except Exception as e:
+        await ctx.send("Es ist ein Fehler aufgetreten.")
+        print(f"Fehler: {e}")
+
+@commands.command('dmMemberSpam')
+async def dmMemberSpam(ctx, message: str, *members: discord.Member):
+    try:
+        if not members:
+            ctx.send("You have to mention atleast one member!")
+            return
+        while True:
+             bot.loop.create_task(members.send(message))
+    except discord.Forbidden:
+        await ctx.send(f"Ich kann {members.name} keine Nachricht senden. Der Benutzer hat DMs deaktiviert.")
+    except Exception as e:
+        await ctx.send("Es ist ein Fehler aufgetreten.")
+        print(f"Fehler: {e}")
+
+@commands.command('stopAll')
+async def stopAll(ctx):
+    pass
