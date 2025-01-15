@@ -98,8 +98,8 @@ async def alone(ctx, member: discord.Member):
         await ctx.send("You are not connected to a voice channel!")
 
 @commands.command('dmMe')   # only test reasons
-async def dmMe(ctx):
-    await ctx.author.send('I send you a message')
+async def dmMe(ctx, message: str):
+    await ctx.author.send(message)
 
 @commands.command('dmMember')
 async def dmMember(ctx, message: str, *members: discord.Member):

@@ -29,6 +29,8 @@ async def on_command_error(ctx, error):
 async def on_message(message):
     if message.author == bot.user:
         return
+    if isinstance(message.channel, discord.DMChannel):
+        await message.author.send("Please don't send me private messages!")
     if message.content.startswith('$') and isinstance(message.author, discord.Member):
         role_ids = [role.id for role in message.author.roles]
         if not any(test in role_ids for test in manage_bot_roles):
