@@ -3,6 +3,8 @@ from discord.ext import commands
 import requests
 import json
 import bot_events
+import threading
+import asyncio
 
 bot = None
 
@@ -115,19 +117,36 @@ async def dmMember(ctx, message: str, *members: discord.Member):
         await ctx.send("Es ist ein Fehler aufgetreten.")
         print(f"Fehler: {e}")
 
-@commands.command('dmMemberSpam')
+@commands.command('dmMemberSpam')   # needs to be threaded
 async def dmMemberSpam(ctx, message: str, *members: discord.Member):
     try:
         if not members:
             ctx.send("You have to mention atleast one member!")
             return
-        while True:
-             bot.loop.create_task(members.send(message))
+        for member in members:
+            message_members = threading.Thread(target=start_spam_in_thread, args=(message, member, bot.loop), daemon=True)
+            message_members.run()
     except discord.Forbidden:
         await ctx.send(f"Ich kann {members.name} keine Nachricht senden. Der Benutzer hat DMs deaktiviert.")
     except Exception as e:
         await ctx.send("Es ist ein Fehler aufgetreten.")
         print(f"Fehler: {e}")
+
+def start_spam_in_thread(message: str, member: discord.Member, loop: asyncio.AbstractEventLoop):
+    try:
+        asyncio.run_coroutine_threadsafe(spammessage_discord_member(message, member), loop)
+    except Exception as e:
+        print(f"Fehler im Thread für {member.name}: {e}")
+
+async def spammessage_discord_member(message: str, member: discord.Member):
+    try:
+        while True:
+            await member.send(message)
+            await asyncio.sleep(1)
+    except discord.Forbidden:
+        print(f"DMs für {member.name} sind deaktiviert.")
+    except Exception as e:
+        print(f"Fehler bei {member.name}: {e}")
 
 @commands.command('stopAll')
 async def stopAll(ctx):
