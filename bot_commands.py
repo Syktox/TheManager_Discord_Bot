@@ -8,6 +8,7 @@ import asyncio
 
 bot = None
 threadList = []
+wake_event = asyncio.Event()
 
 # Event commands
 
@@ -192,7 +193,6 @@ async def stopAll(ctx):
 
 # Other commands
 
-wake_event = asyncio.Event()
 @commands.command('survey')
 async def survey(ctx, question: str, *options):
     if len(options) < 2:
