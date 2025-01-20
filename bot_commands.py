@@ -7,6 +7,7 @@ import threading
 import asyncio
 
 bot = None
+threadList = []
 
 # Event commands
 
@@ -117,37 +118,64 @@ async def dmMember(ctx, message: str, *members: discord.Member):
         await ctx.send("Es ist ein Fehler aufgetreten.")
         print(f"Fehler: {e}")
 
-@commands.command('dmMemberSpam')   # needs to be threaded
+@commands.command('dmMemberSpam')  # Muss threaded sein
 async def dmMemberSpam(ctx, message: str, *members: discord.Member):
     try:
         if not members:
-            ctx.send("You have to mention atleast one member!")
+            await ctx.send("You have to mention at least one member!")
             return
+
         for member in members:
-            message_members = threading.Thread(target=start_spam_in_thread, args=(message, member, bot.loop), daemon=True)
-            message_members.run()
+            stop_event = threading.Event()  # Event-Objekt für diesen Thread
+            thread = threading.Thread(
+                target=start_spam_in_thread, 
+                args=(message, member, bot.loop, stop_event), 
+                daemon=True
+            )
+            threadList.append({"thread": thread, "event": stop_event})  # Speichere Thread und Event
+            thread.start()
+
+        await ctx.send(f"Started spamming {len(members)} members.")
+        
     except discord.Forbidden:
-        await ctx.send(f"Ich kann {members.name} keine Nachricht senden. Der Benutzer hat DMs deaktiviert.")
+        await ctx.send("I can't send a message to one or more users. They have DMs disabled.")
     except Exception as e:
-        await ctx.send("Es ist ein Fehler aufgetreten.")
-        print(f"Fehler: {e}")
+        await ctx.send("An error occurred.")
+        print(f"Error: {e}")
 
-def start_spam_in_thread(message: str, member: discord.Member, loop: asyncio.AbstractEventLoop):
+
+def start_spam_in_thread(message: str, member: discord.Member, loop: asyncio.AbstractEventLoop, stop_event: threading.Event):
     try:
-        asyncio.run_coroutine_threadsafe(spammessage_discord_member(message, member), loop)
+        asyncio.run_coroutine_threadsafe(
+            spammessage_discord_member(message, member, stop_event), 
+            loop
+        )
     except Exception as e:
-        print(f"Fehler im Thread für {member.name}: {e}")
+        print(f"Thread error for {member.name}: {e}")
 
-async def spammessage_discord_member(message: str, member: discord.Member):
+
+async def spammessage_discord_member(message: str, member: discord.Member, stop_event: threading.Event):
     try:
-        while True:
+        while not stop_event.is_set():  # Überprüfe, ob das Event gesetzt ist
             await member.send(message)
             await asyncio.sleep(1)
     except discord.Forbidden:
-        print(f"DMs für {member.name} sind deaktiviert.")
+        print(f"DMs for {member.name} are disabled.")
     except Exception as e:
-        print(f"Fehler bei {member.name}: {e}")
+        print(f"Error with {member.name}: {e}")
 
-@commands.command('stopAll')
+
+@commands.command('stopAll')  # Stoppt alle Threads
 async def stopAll(ctx):
-    pass
+    if not threadList:
+        await ctx.send("No threads to stop.")
+        return
+
+    for thread_data in threadList:
+        stop_event = thread_data["event"]
+        thread = thread_data["thread"]
+        stop_event.set()  # Signalisiere dem Thread, dass er stoppen soll
+        thread.join()  # Warte, bis der Thread beendet ist
+
+    threadList.clear()  # Liste leeren
+    await ctx.send("All threads have been stopped.")
