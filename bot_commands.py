@@ -16,14 +16,17 @@ async def switch_join_message(ctx, changed: bool):
     bot_events.show_join_message = changed
     await ctx.send(f"Show new member message has been set to: {bot_events.show_join_message}")
 
+
 @commands.command('switch_leave_message')
 async def switch_leave_message(ctx, changed: bool):
     bot_events.show_leave_message = changed
     await ctx.send(f"Leave message has been set to: {bot_events.show_leave_message}")
 
+
 @commands.command('check_join_message_status')
 async def check_join_message_status(ctx):
     await ctx.send(f"Join messages are set to: {bot_events.show_join_message}")
+
 
 @commands.command('check_leave_message_status')
 async def check_leave_message_status(ctx):
@@ -51,6 +54,7 @@ async def changeNickname(ctx, member: discord.Member, nick: str):
     except discord.Forbidden:
         print(f"Can't change the nickname of {member.name} : {member.nick}")
 
+
 @commands.command('removeAllNicknames', pass_content=True)
 async def removeAllNicknames(ctx):
     for member in ctx.guild.members:
@@ -64,6 +68,7 @@ async def removeAllNicknames(ctx):
         except discord.HTTPException as e:
             print(f"Error : {e}")
 
+
 @commands.command('removeAllNicknamesExceptRole')
 async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
     for server_member in ctx.guild.members:
@@ -76,6 +81,7 @@ async def removeAllNicknamesExceptRole(ctx, role: discord.guild.Role):
                 print(f"Can't change the nickname of {server_member.name} : {server_member.nick}")
             except discord.HTTPException as e:
                 print(f"Error : {e}")
+
 
 @commands.command('changeAllNicknamesInRole')
 async def changeAllNicknamesInRole(ctx, role: discord.guild.Role, str):
@@ -100,9 +106,11 @@ async def alone(ctx, member: discord.Member):
     else:
         await ctx.send("You are not connected to a voice channel!")
 
+
 @commands.command('dmMe')   # only test reasons
 async def dmMe(ctx, message: str):
     await ctx.author.send(message)
+
 
 @commands.command('dmMember')
 async def dmMember(ctx, message: str, *members: discord.Member):
@@ -117,6 +125,7 @@ async def dmMember(ctx, message: str, *members: discord.Member):
     except Exception as e:
         await ctx.send("Es ist ein Fehler aufgetreten.")
         print(f"Fehler: {e}")
+
 
 @commands.command('dmMemberSpam')  # Muss threaded sein
 async def dmMemberSpam(ctx, message: str, *members: discord.Member):
@@ -179,3 +188,40 @@ async def stopAll(ctx):
 
     threadList.clear()  # Liste leeren
     await ctx.send("All threads have been stopped.")
+
+
+# Other commands
+
+wake_event = asyncio.Event()
+@commands.command('survey')
+async def survey(ctx, question: str, *options):
+    if len(options) < 2:
+        await ctx.send("You need at least 2 options to create a Survey!")
+        return
+    if len(options) > 10:
+        await ctx.send("You can only have up to 10 options!")
+        return
+    
+    embed = discord.Embed(title="Survey", description=question, color=0x00ff00)
+    reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+    fields = [f"{reactions[i]} {option}" for i, option in enumerate(options)]
+    embed.add_field(name="Options", value="\n".join(fields), inline=False)
+    poll_message = await ctx.send(embed=embed)
+
+    for i in range(len(options)):
+        await poll_message.add_reaction(reactions[i])
+
+    await wake_event.wait()
+    poll_message = await ctx.fetch_message(poll_message.id)
+    results = {reactions[i]: 0 for i in range(len(options))}
+    for reaction in poll_message.reactions:
+        if reaction.emoji in results:
+            results[reaction.emoji] = reaction.count - 1
+
+    result_text = "\n".join([f"{fields[i]}: {results[reactions[i]]} votes" for i in range(len(options))])
+    await ctx.send(f"Poll Results:\n{result_text}")
+
+
+@commands.command('stopSurvey')
+async def stopSurvey(ctx):
+    wake_event.set()
