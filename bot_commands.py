@@ -193,8 +193,8 @@ async def stopAll(ctx):
 
 # Other commands
 
-@commands.command('survey')
-async def survey(ctx, question: str, *options):
+@commands.command('poll')
+async def poll(ctx, question: str, *options):
     if len(options) < 2:
         await ctx.send("You need at least 2 options to create a Survey!")
         return
@@ -202,7 +202,7 @@ async def survey(ctx, question: str, *options):
         await ctx.send("You can only have up to 10 options!")
         return
     
-    embed = discord.Embed(title="Survey", description=question, color=0x00ff00)
+    embed = discord.Embed(title="Poll", description=question, color=0x00ff00)
     reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
     fields = [f"{reactions[i]} {option}" for i, option in enumerate(options)]
     embed.add_field(name="Options", value="\n".join(fields), inline=False)
@@ -222,6 +222,26 @@ async def survey(ctx, question: str, *options):
     await ctx.send(f"Poll Results:\n{result_text}")
 
 
-@commands.command('stopSurvey')
-async def stopSurvey(ctx):
+@commands.command('stopPoll')
+async def stopPoll(ctx):
     wake_event.set()
+
+
+@commands.command('pollYN')
+async def pollYN(ctx, question: str):
+    embed = discord.Embed(title=question, description="", color=0x00ff00)
+    reactions = ['✅', '❎']
+    poll_message = await ctx.send(embed=embed)
+
+    for i in range(len(reactions)):
+        await poll_message.add_reaction(reactions[i])
+
+    await wake_event.wait()
+    poll_message = await ctx.fetch_message(poll_message.id)
+    results = {reactions[i]: 0 for i in range(len(reactions))}
+    for reaction in poll_message.reactions:
+        if reaction.emoji in results:
+            results[reaction.emoji] = reaction.count - 1
+
+    result_text = "\n".join([f"{reactions[i]}: {results[reactions[i]]} votes" for i in range(len(reactions))])
+    await ctx.send(f"Poll Results:\n{result_text}")
